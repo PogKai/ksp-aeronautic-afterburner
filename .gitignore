@@ -1,0 +1,17 @@
+# Build output (bin/ would also hold copies of KSP's and Unity's own assemblies: never redistribute them)
+bin/
+obj/
+dist/
+.vs/
+*.user
+
+# Unity's import cache and run output
+unity/Library/
+unity/Temp/
+unity/Logs/
+unity/UserSettings/
+unity/Bundles/
+unity/Assets/Editor/Port/
+unity/*.log
+unity/*.csproj
+unity/*.sln
