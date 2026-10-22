@@ -102,6 +102,7 @@ namespace AeronauticAfterburner
             Material.SetFloat("_StepSafety", (float)p.StepSafety);
             Material.SetFloat("_DitherScale", (float)p.DitherScale);
             Material.SetFloat("_PlumeTime", time);
+            Material.SetFloat("_Blue", (float)p.Blue);
         }
 
         // One nozzle from one camera; false when it is not drawn (culled or off screen).

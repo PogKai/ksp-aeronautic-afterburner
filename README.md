@@ -7,6 +7,7 @@ Raymarched afterburner plumes for Kerbal Space Program aircraft: a glowing, flow
 * **Every afterburning jet** gets a plume in its wet mode: stock multi-mode jets and most mod jets. Dry modes keep their own effects
 * **Follows the engine**: lights in stages, grows with thrust and airspeed, shows shock diamonds at full reheat, and goes out when you throttle back or switch to dry
 * **Fits the nozzle**: starts at the measured exit of the engine's own mesh, following animated and gimballed nozzles
+* **Your choice of colour and length**: orange or blue, and a length slider, in the app launcher window
 * **Replaces, doesn't stack**: the engine's stock or Waterfall afterburner effect is hidden while the plume is drawn, and restored afterwards
 
 ## Install
@@ -19,7 +20,14 @@ KSP 1.12.x · no dependencies · works on its own or alongside [WingtipVortex](h
 
 ## Settings
 
-In flight, the flame button on the app launcher turns the plumes on (lit) and off. The choice is saved to `PluginData/settings.cfg` in the mod's folder. An empty file named `verbose.txt` next to `Plugins` logs each nozzle fit to `KSP.log` (search for `[AFTERBURNER]`).
+In flight, the flame button on the app launcher opens a small window:
+
+* **Afterburner plumes**: on or off
+* **Flame colour**: **Orange** (the default) or **Blue**; a switch fades over about half a second
+* **Length**: the flame's maximum length from 50% to 200% of the default (3 to 14 nozzle diameters, longer at speed)
+* **Defaults** puts all three back
+
+The choices are saved to `PluginData/settings.cfg` in the mod's folder. An empty file named `verbose.txt` next to `Plugins` logs each nozzle fit to `KSP.log` (search for `[AFTERBURNER]`).
 
 ## Learn more
 

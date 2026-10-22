@@ -31,6 +31,8 @@ namespace AeronauticAfterburner
         public double ShockFloor = 0.1, ShockPersistence = 1, ShockRelaxation = 3.2;
         public double ActivationK = 18000, EddyStretch = 2.5, ShutterS = 1.0 / 60, MeanderScale = 5;
         public double StepSafety = 0.8, DitherScale = 37;
+        // Not upstream's: how blue the flame is, 0 (orange to white) to 1 (the red and blue ends of the light swapped).
+        public double Blue;
         // Not upstream's dials. MaxCoflow: the most the air may run with the jet, as a share of its speed
         // (upstream's PLUME_MAX_COFLOW). ShockCells: shock cells visible before the train fades, from
         // the cell spacing (0: upstream's, from the jet's supersonic core).

@@ -22,6 +22,7 @@ The plume starts at the nozzle's exit, measured from the engine's own mesh: the 
 
 * The burner follows the engine's actual output (thrust over maximum): the first zone lights at once, the rest stages in over about 1.6 s, and it goes out faster than it lights. No output, no flame
 * Flame length 3 to 14 exit diameters and about 5.5 shock cells; the length grows from half at rest to full at 300 m/s. The jet's expansion reads airspeed only up to 150 m/s, so a fast KSP jet does not swell without limit
+* The player can pick a blue flame (the red and blue ends of the light swapped, so the sheath and diamonds go blue while the white-hot core stays white; not upstream's) and scale the maximum length from 50% to 200%
 * The sheath flows and the diamonds shiver while the output changes, and settle at a steady reheat
 * Departures from upstream: brighter cells (barrel bow 0.18, fan cooling 0.12 against upstream's 0.35 and 0.6, too dim in KSP), a steady flutter of 0.25 on the sheath, and one draw per nozzle. No heat haze, scene fog or sun scattering
 

@@ -46,6 +46,7 @@ float4 _Cell;     // shock spacing, first disk, spread near, spread far
 float4 _Optics;   // soot (as formed), -, particles, albedo
 float4 _Exit;     // lip temperature, compression, soot survival, adaptation
 float4 _Band;     // rgb, strength (only while the burner is lit)
+float _Blue;      // 0 orange, 1 blue (not upstream)
 float4 _Misc;     // turbulence, meander, refraction, seed
 float4 _Outer;    // outer far, reheat, budget, thinning
 float4 _Glow;     // glow, nozzle radius, glow temperature, pipe flame
@@ -431,6 +432,8 @@ float4 frag(v2f i) : SV_Target
         light += transmittance * (tint * _Glow.x * seen + flame);
     }
 
+    // Not upstream's: a blue flame swaps the red and blue ends of the light (the white-hot core stays white).
+    light = lerp(light, float3(light.z, light.y * 0.85, light.x), _Blue);
     float3 exposed = light * _Exposure * _Exit.w;
     float coverage = 1 - dot(transmittance, LUMINANCE);
     if (coverage < 1e-4 && max(max(exposed.x, exposed.y), exposed.z) < 1e-5) discard;

@@ -67,6 +67,8 @@ namespace AeronauticAfterburner
         readonly AfterburnerProfile profile = AfterburnerLook.Profile(), look = AfterburnerLook.Profile();
         AfterburnerDraw draw;
         float nextScan, time;
+        // How blue the flame is now: eased toward the setting, so a switch fades over about half a second.
+        double blue;
         bool hooked;
 
         void Start()
@@ -327,6 +329,8 @@ namespace AeronauticAfterburner
             Camera flight = FlightCamera.fetch != null ? FlightCamera.fetch.mainCamera : null;
             if (cam != flight || draw == null || nozzles.Count == 0) return;
             bool depth = false;
+            blue += ((AfterburnerSettings.Blue ? 1 : 0) - blue) * (1 - Math.Exp(-Time.deltaTime / 0.18));
+            profile.Blue = blue;
             draw.WriteProfile(profile, time);
             foreach (Nozzle n in nozzles.Values)
             {
@@ -351,8 +355,8 @@ namespace AeronauticAfterburner
                 profile.AltitudeM = v.altitude;
                 profile.AirspeedMPerS = Math.Min(v.srfSpeed, AfterburnerLook.SpeedLimitMPerS);
                 double length = AfterburnerLook.LengthShare(v.srfSpeed);
-                profile.MinLengthD = look.MinLengthD * length;
-                profile.MaxLengthD = look.MaxLengthD * length;
+                profile.MinLengthD = look.MinLengthD * length * AfterburnerSettings.LengthScale;
+                profile.MaxLengthD = look.MaxLengthD * length * AfterburnerSettings.LengthScale;
                 for (int i = 0; i < e.thrustTransforms.Count; i++)
                 {
                     Transform t = e.thrustTransforms[i];
