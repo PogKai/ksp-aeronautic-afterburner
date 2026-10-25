@@ -2,6 +2,11 @@
 
 ## aeronautic
 
+The aeronautic portions below retain the MIT License. Its permissions include
+commercial use and redistribution when the copyright and license notices are
+preserved. The CC BY-NC-SA 4.0 terms for PogKai-authored material do not replace
+those upstream permissions; this is not a relicensing of aeronautic.
+
 The plume model (`Source/PlumeModel.cs`, `Source/Atmosphere.cs`), its draw code (`Source/PlumeDraw.cs`) and the plume shader (`unity/Assets/Shaders/`) are ported from [aeronautic](https://github.com/Romainlg29/aeronautic) by Romain Le Gall, `@aeronautic/afterburner` and `@aeronautic/core` at commit `673b967`. Each ported file names its upstream source. That code is used under the MIT License:
 
 ```

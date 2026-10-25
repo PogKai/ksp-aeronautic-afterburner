@@ -40,7 +40,10 @@ The plume model and shader are ported from [aeronautic](https://github.com/Romai
 
 ## License
 
-[CC BY-NC-SA 4.0](license.md): free to use, change and share, never to sell; credit PogKai and share alike. The ported aeronautic code stays under its MIT License.
+* **PogKai-authored material:** [CC BY-NC-SA 4.0](license.md). Non-commercial use, modification and redistribution are permitted with attribution, a license link and an indication of changes. Shared adaptations of that material must use the same license.
+* **Upstream aeronautic portions:** retain the **MIT License**, including its permission for commercial use, subject to preserving the copyright and license notices. The CC non-commercial and share-alike conditions do not replace those upstream permissions.
+
+See [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md) and the notices in the ported source files.
 
 ## AI disclosure
 
