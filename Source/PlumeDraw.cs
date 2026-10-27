@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace AeronauticAfterburner
 {
-    // The look KSP draws the plume with (docs/afterburner.md), shared with the offline harness.
+    // KSP plume tuning; see docs/how-it-works.md.
     public static class AfterburnerLook
     {
         // The plume reads the airspeed only up to this: faster, the ram swells the jet without limit.
@@ -17,7 +17,7 @@ namespace AeronauticAfterburner
         {
             return new AfterburnerProfile
             {
-                ShockRelaxation = 4.5, MaxCoflow = 0.35, ShockCells = 5.5, MinLengthD = 3, MaxLengthD = 14, Exposure = 40, SpreadScale = 0.6,
+                ShockRelaxation = 4.5, MaxCoflow = 0.35, ShockCells = 5.5, MinLengthD = 2.5, MaxLengthD = 8, Exposure = 40, SpreadScale = 0.6,
                 BarrelBow = 0.18, FanCooling = 0.12, DiamondPower = 2, SteadyFlutter = 0.25,
             };
         }
@@ -67,7 +67,7 @@ namespace AeronauticAfterburner
             ExitId = Shader.PropertyToID("_Exit"), BandId = Shader.PropertyToID("_Band"),
             MiscId = Shader.PropertyToID("_Misc"), OuterId = Shader.PropertyToID("_Outer"),
             GlowId = Shader.PropertyToID("_Glow"), HullId = Shader.PropertyToID("_Hull"),
-            AmbientId = Shader.PropertyToID("_AmbientK");
+            AmbientId = Shader.PropertyToID("_AmbientK"), DaylightId = Shader.PropertyToID("_Daylight");
 
         public readonly Material Material;
         readonly Mesh hull;
@@ -107,7 +107,7 @@ namespace AeronauticAfterburner
 
         // One nozzle from one camera; false when it is not drawn (culled or off screen).
         // surge 0 to 1: how much the burner is changing (the sheath flows aft, the diamonds shiver).
-        public bool Draw(Camera camera, int layer, Vector3 exit, Quaternion aft, AfterburnerParams p, JetState s, float seed, float surge = 0, Vector3? shape = null)
+        public bool Draw(Camera camera, int layer, Vector3 exit, Quaternion aft, AfterburnerParams p, JetState s, float seed, float surge = 0, Vector3? shape = null, float daylight = 1f)
         {
             if (p.NozzleRadiusM <= 0 || s.ReachM <= 0) return false;
             Vector3 toCamera = camera.transform.position - exit;
@@ -137,6 +137,7 @@ namespace AeronauticAfterburner
             block.SetVector(GlowId, V(s.Glow, p.NozzleRadiusM * s.NozzleScale, s.GlowTemperatureK, s.PipeFlame));
             block.SetVector(HullId, V(s.OuterNearM, lod, Octaves, surge));
             block.SetFloat(AmbientId, (float)s.AmbientK);
+            block.SetFloat(DaylightId, Mathf.Clamp01(daylight));
 
             Matrix4x4 objectToWorld = Matrix4x4.TRS(exit, aft, shape ?? Vector3.one);
             Graphics.DrawMesh(hull, objectToWorld, Material, layer, camera, 0, block, false, false);

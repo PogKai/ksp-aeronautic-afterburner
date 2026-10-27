@@ -1,58 +1,127 @@
-# Aeronautic Afterburner
+<div align="center">
 
-Raymarched afterburner plumes for Kerbal Space Program aircraft: a glowing, flowing jet with shock diamonds that grows and shrinks with the engine, in place of the engine's own afterburner effect.
+# AERONAUTIC AFTERBURNER
+
+Raymarched afterburner plumes for Kerbal Space Program
+
+<br>
+
+[![Release](https://img.shields.io/github/v/release/PogKai/ksp-aeronautic-afterburner?style=flat-square&label=release&color=2b7bb9)](https://github.com/PogKai/ksp-aeronautic-afterburner/releases/latest)
+[![KSP](https://img.shields.io/badge/KSP-1.12.x-4c9a4c?style=flat-square)](#install)
+[![License](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey?style=flat-square)](license.md)
+
+**[Download](https://github.com/PogKai/ksp-aeronautic-afterburner/releases/latest)**
+&nbsp;·&nbsp; [WingtipVortex](https://github.com/PogKai/ksp-wingtip-vortex)
+&nbsp;·&nbsp; [Changelog](CHANGELOG.md)
+
+</div>
+
+<br>
 
 ## What it does
 
-* **Every afterburning jet** gets a plume in its wet mode: stock multi-mode jets and most mod jets. Dry modes keep their own effects
-* **Follows the engine**: lights in stages, grows with thrust and airspeed, shows shock diamonds at full reheat, and goes out when you throttle back or switch to dry
-* **Fits the nozzle**: starts at the measured exit of the engine's own mesh, following animated and gimballed nozzles
-* **Your choice of colour and length**: orange or blue, and a length slider, in the app launcher window
-* **Replaces, doesn't stack**: the engine's stock or Waterfall afterburner effect is hidden while the plume is drawn, and restored afterwards
+Install it and fly: afterburning engines get a flowing raymarched plume, with no per-craft setup. An optional in-flight panel lets you tune or disable it.
+
+| | |
+|---|---|
+| **Afterburner plumes** | Glowing exhaust with shock diamonds, staged light-up and wet-to-dry shrinkage. Follows the engine's actual output and airspeed, not just the throttle lever |
+| **Orange or blue** | Warm orange by default, or Sukhoi-style blue with cobalt edges, a cyan body and an icy-white hot core |
+| **Nozzle fitting** | Starts at the measured engine exit and follows animated and gimballed nozzles |
+| **One wet effect** | Replaces stock or optional Waterfall afterburner visuals while preserving dry effects; restores the original effect states afterwards |
+
+<br>
 
 ## Install
 
-1. Download the zip from the latest release
+1. Download the zip from the [latest release](https://github.com/PogKai/ksp-aeronautic-afterburner/releases/latest)
 2. Copy the `AeronauticAfterburner` folder (inside the zip's `GameData`) into your KSP `GameData/`
 3. Fly
 
-KSP 1.12.x · no dependencies · works on its own or alongside [WingtipVortex](https://github.com/PogKai/ksp-wingtip-vortex) · to remove, delete the folder.
+KSP 1.12.x · no dependencies · to upgrade, delete the old `AeronauticAfterburner` folder first, then copy the new one · to remove, delete it.
 
-## Settings
+Install only one copy of the DLL. Back up `PluginData/settings.cfg` before replacing an existing installation if you want to retain your choices.
 
-In flight, the flame button on the app launcher opens a small window:
+<br>
 
-* **Afterburner plumes**: on or off
-* **Flame colour**: **Orange** (the default) or **Blue**; a switch fades over about half a second
-* **Length**: the flame's maximum length from 50% to 200% of the default (3 to 14 nozzle diameters, longer at speed)
-* **Defaults** puts all three back
+## New in 1.0.0
 
-The choices are saved to `PluginData/settings.cfg` in the mod's folder. An empty file named `verbose.txt` next to `Plugins` logs each nozzle fit to `KSP.log` (search for `[AFTERBURNER]`).
+* **Standalone afterburners**: previously previewed alongside WingtipVortex, now their own mod, ported from [aeronautic](https://github.com/Romainlg29/aeronautic)
+* **Sukhoi-style blue**: a dedicated blue palette, rather than swapping the orange flame's colour channels
+* **In-flight settings**: plumes on or off, orange or blue, and maximum length from 50% to 200%; choices are saved
+* Windows, macOS and Linux shader bundles included
+* Everything else in the [changelog](CHANGELOG.md)
+
+<br>
+
+## Engine support and limits
+
+* Stock multi-mode jets and mod engines whose wet-mode ID starts with `wet` or contains `afterburn` or `reheat` are recognised. Arbitrary mode names are not automatically detected
+* **Dry modes keep their original effects**. A running dry engine does not get a replacement afterburner plume
+* Plumes are round, including on rectangular nozzles. Unusual engine meshes may require a fallback nozzle radius
+* A missing or unsupported platform shader leaves the original engine effects in place
+
+<br>
+
+## Good to know
+
+* Works on its own or alongside **[WingtipVortex 2.0](https://github.com/PogKai/ksp-wingtip-vortex)**. WingtipVortex supplies wing vapor, vortices and contrails; this mod supplies only afterburner plumes
+* **Waterfall is optional**. Its wet throttle controllers are suppressed while the replacement is active and restored afterwards
+* **In-game settings:** in flight, click the flame button on the app launcher to switch the plumes on or off, select **Orange** or **Blue**, or set the maximum length from 50% to 200%. 100% is the default look; **Defaults** restores enabled, orange, 100%. Colour changes fade smoothly over about half a second
+* Choices are saved to `PluginData/settings.cfg` in the mod's folder. The toolbar icon is generated by the mod; no texture pack is needed
+
+<br>
 
 ## Learn more
 
-* [How it works](docs/how-it-works.md): the model, which engines get a plume, the nozzle fit and the look
-* [Changelog](CHANGELOG.md)
+| | |
+|---|---|
+| [How it works](docs/how-it-works.md) | The plume model, nozzle fitting, visual tuning and runtime source map |
+| [Troubleshooting](docs/troubleshooting.md) | Logs, known issues, and how to report a problem |
+| [Changelog](CHANGELOG.md) | Every release |
 
-## Building from source
-
-* The DLL: `dotnet build -c Release -p:KSPDir=<your KSP folder>` builds `bin/Release/AeronauticAfterburner.dll`
-* The shader bundles (Unity 2019.4.18f1, KSP 1.12's version): `unity/build.ps1` writes `Shaders/afterburner-{windows,macos,linux}.bundle`
-* Offline checks (no KSP or Unity): `cd tools/check; dotnet run -c Release -- --reference afterburner-ref.json` (against upstream's TypeScript), `-- --nozzle` (the nozzle fit)
-* The look, outside KSP: `unity/plume.ps1 -Variants 'now:;dim:exposure=40'` renders panels to `unity/Bundles/plume/`
-* The release zip: `python tools/package.py`
-
-## Credits
-
-The plume model and shader are ported from [aeronautic](https://github.com/Romainlg29/aeronautic) by Romain Le Gall, used under the MIT License: see [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md). Each ported file names its upstream source.
+<br>
 
 ## License
 
-* **PogKai-authored material:** [CC BY-NC-SA 4.0](license.md). Non-commercial use, modification and redistribution are permitted with attribution, a license link and an indication of changes. Shared adaptations of that material must use the same license.
-* **Upstream aeronautic portions:** retain the **MIT License**, including its permission for commercial use, subject to preserving the copyright and license notices. The CC non-commercial and share-alike conditions do not replace those upstream permissions.
+[CC BY-NC-SA 4.0](license.md) applies to **PogKai-authored material**, except for the upstream portions described below. For that material, you can:
 
-See [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md) and the notices in the ported source files.
+| | |
+|---|---|
+| **Use it** | In your own game and non-commercial projects |
+| **Change it** | Fork it, modify it, fix it, build on it |
+| **Share it** | Redistribute it, or bundle it in a free modpack |
+| **Reuse the code** | Put any part of it in your own free mods and projects |
 
-## AI disclosure
+As long as you:
 
-Built with help from Claude, Anthropic's AI assistant. The ideas, direction, KSP integration and all in-game testing are PogKai's.
+* **Credit PogKai**, link to this repository and the license, and indicate changes
+* **Use those parts only for non-commercial purposes**
+* **Use the same license** when sharing adaptations of those parts
+
+The portions ported from aeronautic retain their original **MIT License**, including permission for commercial use and redistribution when the copyright and license notices are preserved. The CC non-commercial and share-alike conditions do not replace those upstream permissions. See [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md) and the source-file notices.
+
+<br>
+
+## Credits
+
+Aeronautic Afterburner's plume model and shader are based on and ported from [aeronautic](https://github.com/Romainlg29/aeronautic) by Romain Le Gall. The upstream code is used under the MIT License; exact source revisions, copyright and license text are retained in [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md), and each ported file names its upstream source.
+
+<br>
+
+## Building from source
+
+`dotnet build AeronauticAfterburner.csproj -c Release -p:KSPDir="<your KSP folder>"` builds `bin/Release/AeronauticAfterburner.dll`. The platform shader bundles in `Shaders/` are included ready to use. Their source is in `Source/Shaders/` and targets Unity 2019.4.18f1 (KSP 1.12).
+
+<br>
+
+## Free, always
+
+Every version of this mod is free. I have never charged for it and never will. If you paid for it anywhere, that money didn't go to me. Get it from the [official releases](https://github.com/PogKai/ksp-aeronautic-afterburner/releases).
+
+<br>
+
+<div align="center">
+
+CC BY-NC-SA 4.0 · by PogKai
+
+</div>

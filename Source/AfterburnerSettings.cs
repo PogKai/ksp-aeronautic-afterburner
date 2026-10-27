@@ -9,7 +9,7 @@ namespace AeronauticAfterburner
     // The player's choices, saved to PluginData/settings.cfg; verbose.txt next to Plugins turns on diagnostic logs.
     public static class AfterburnerSettings
     {
-        public const string Version = "1.0.0";
+        public const string Version = "1.1.0";
         public const float MinLength = 0.5f, MaxLength = 2f;
 
         static bool loaded, on = true, blue;
@@ -34,7 +34,7 @@ namespace AeronauticAfterburner
         // A blue flame instead of the orange one.
         public static bool Blue { get { Ensure(); return blue; } set { Ensure(); if (blue != value) { blue = value; Save(); } } }
 
-        // The flame's length against the default (1 = 3 to 14 exit diameters).
+        // The flame's length against the default (1 = 2.5 to 8 exit diameters).
         public static float LengthScale
         {
             get { Ensure(); return lengthScale; }

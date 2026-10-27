@@ -6,9 +6,8 @@ using UnityEngine;
 
 namespace AeronauticAfterburner
 {
-    // Engines in a wet (afterburner) mode drawn with aeronautic's raymarched plume. The engine's own
-    // wet effect (stock particles or a Waterfall module) is hidden while this is on; dry modes keep
-    // theirs. See docs/afterburner.md.
+    // Raymarched wet-mode plumes replace stock or Waterfall wet effects; dry effects remain intact.
+    // See docs/how-it-works.md.
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class AfterburnerPlumes : MonoBehaviour
     {
@@ -19,7 +18,7 @@ namespace AeronauticAfterburner
         const double ExitFill = 0.92;
         // How fast the lit share of the burner moves, per second. Lighting: the first zone pops in
         // within 0.3 s, the rest stages in over about 1.6 s. Going out: about 1.2 s. The flame's
-        // length and diamonds follow it (docs/afterburner.md).
+        // length and diamonds follow it (docs/how-it-works.md).
         const double LightFirstZone = 1.2, LightStaging = 0.4, GoOut = 0.8;
         // Switching to dry mode: the burner goes out in about 0.35 s while the nozzle closes, the
         // plume shrinking with it to ClosedShare of its size; opening again takes about half a second.
@@ -54,6 +53,9 @@ namespace AeronauticAfterburner
             public readonly Dictionary<object, bool> ControllerOverrides = new Dictionary<object, bool>();
             public readonly Dictionary<object, float> ControllerValues = new Dictionary<object, float>();
             public readonly Dictionary<GameObject, bool> ParticleActive = new Dictionary<GameObject, bool>();
+            // Stock/Waterfall/lighting-mod exhaust lights near this engine's thrust transforms.
+            // Their authored colours are restored whenever blue mode or wet mode is left.
+            public readonly Dictionary<Light, Color> LightColors = new Dictionary<Light, Color>();
         }
 
         class MeshProbe
@@ -75,6 +77,8 @@ namespace AeronauticAfterburner
         {
             Shader shader = PlumeShaders.Plume;
             if (shader == null) { Debug.Log("[AFTERBURNER] no shader, plumes off"); enabled = false; return; }
+            // Begin in the user's persisted colour mode; never flash orange while discovering engines.
+            blue = AfterburnerSettings.Blue ? 1.0 : 0.0;
             draw = new AfterburnerDraw(shader);
             Camera.onPreCull += OnPreCull;
             hooked = true;
@@ -111,6 +115,7 @@ namespace AeronauticAfterburner
                 if (WetMode(n) && !n.VisualsHidden) Hide(n);
                 else if (!WetMode(n) && n.VisualsHidden) RestoreEffects(n);
                 foreach (GameObject g in n.HiddenParticles) if (g != null && g.activeSelf) g.SetActive(false);
+                if (WetMode(n)) CaptureExhaustLights(n);
             }
             var gone = new List<Part>();
             foreach (KeyValuePair<Part, Nozzle> kv in nozzles) if (!seen.Contains(kv.Key)) gone.Add(kv.Key);
@@ -231,6 +236,33 @@ namespace AeronauticAfterburner
         static bool Same(object id, string engineID) { return string.Equals(id as string, engineID, StringComparison.OrdinalIgnoreCase); }
         public static bool IsWet(string id) { id = (id ?? "").ToLowerInvariant(); return id.StartsWith("wet") || id.Contains("afterburn") || id.Contains("reheat"); }
 
+        // Capture only lights close to a wet engine's nozzle transforms. This includes stock FX,
+        // Waterfall and common engine-lighting add-ons without touching vessel navigation lights.
+        static void CaptureExhaustLights(Nozzle n)
+        {
+            if (n.Part == null || n.Wet == null || n.Wet.thrustTransforms == null) return;
+            float radius = Mathf.Max((float)n.Params.NozzleRadiusM * 4f, 1.5f);
+            float radius2 = radius * radius;
+            foreach (Light light in n.Part.GetComponentsInChildren<Light>(true))
+            {
+                if (light == null || n.LightColors.ContainsKey(light)) continue;
+                bool exhaust = false;
+                foreach (Transform thrust in n.Wet.thrustTransforms)
+                {
+                    if (thrust != null && (light.transform.position - thrust.position).sqrMagnitude <= radius2) { exhaust = true; break; }
+                }
+                if (exhaust) n.LightColors[light] = light.color;
+            }
+        }
+
+        static void TintExhaustLights(Nozzle n, float blue)
+        {
+            // Subdued cyan illumination matches the plume without washing terrain electric blue.
+            Color blueLight = new Color(0.18f, 0.48f, 1.0f, 1f);
+            foreach (KeyValuePair<Light, Color> kv in n.LightColors)
+                if (kv.Key != null) kv.Key.color = Color.Lerp(kv.Value, blueLight, Mathf.Clamp01(blue));
+        }
+
         static void Release(Nozzle n)
         {
             RestoreEffects(n);
@@ -239,11 +271,13 @@ namespace AeronauticAfterburner
 
         static void RestoreEffects(Nozzle n)
         {
+            TintExhaustLights(n, 0f);
             foreach (object c in n.HiddenControllers) { Set(c, "overrideValue", n.ControllerValues[c]); Set(c, "overridden", n.ControllerOverrides[c]); }
             foreach (GameObject g in n.HiddenParticles) if (g != null) g.SetActive(n.ParticleActive[g]);
             n.HiddenControllers.Clear();
             n.HiddenParticles.Clear();
             n.ControllerOverrides.Clear(); n.ControllerValues.Clear(); n.ParticleActive.Clear();
+            n.LightColors.Clear();
             n.VisualsHidden = false;
         }
 
@@ -251,6 +285,17 @@ namespace AeronauticAfterburner
         {
             if (!n.Wet.EngineIgnited) return false;
             return n.Modes == null || Same(n.Modes.runningPrimary ? n.Modes.primaryEngineID : n.Modes.secondaryEngineID, n.Wet.engineID);
+        }
+
+        // Direct sun at the vessel: 0 shortly below the horizon, 1 in full daylight, with a
+        // twilight ramp. The shader uses this only to reveal the orange plume's violet sheath.
+        static float Daylight(Vessel vessel)
+        {
+            if (vessel == null || vessel.mainBody == null || FlightGlobals.Bodies == null || FlightGlobals.Bodies.Count == 0) return 1f;
+            Vector3d position = vessel.CoM;
+            Vector3d up = (position - vessel.mainBody.position).normalized;
+            Vector3d toSun = (FlightGlobals.Bodies[0].position - position).normalized;
+            return Mathf.Clamp01((float)((Vector3d.Dot(up, toSun) + 0.08) * 4.0));
         }
 
         static void FitLips(Nozzle n)
@@ -329,7 +374,13 @@ namespace AeronauticAfterburner
             Camera flight = FlightCamera.fetch != null ? FlightCamera.fetch.mainCamera : null;
             if (cam != flight || draw == null || nozzles.Count == 0) return;
             bool depth = false;
-            blue += ((AfterburnerSettings.Blue ? 1 : 0) - blue) * (1 - Math.Exp(-Time.deltaTime / 0.18));
+            double blueTarget = AfterburnerSettings.Blue ? 1.0 : 0.0;
+            bool anyWet = false;
+            foreach (Nozzle nozzle in nozzles.Values) if (WetMode(nozzle)) { anyWet = true; break; }
+            // While dry, retain the selected mode exactly. Only animate a deliberate colour-mode
+            // change while reheat is visible; returning to wet therefore starts in the saved mode.
+            if (anyWet) blue += (blueTarget - blue) * (1 - Math.Exp(-Time.deltaTime / 0.18));
+            else blue = blueTarget;
             profile.Blue = blue;
             draw.WriteProfile(profile, time);
             foreach (Nozzle n in nozzles.Values)
@@ -338,6 +389,7 @@ namespace AeronauticAfterburner
                 if (n.Part == null || e == null) continue;
                 // What the engine is making (its thrust over its maximum), spool-up and all, not the throttle.
                 bool wetMode = WetMode(n);
+                TintExhaustLights(n, wetMode ? (float)blue : 0f);
                 bool running = wetMode && !e.flameout;
                 double output = running ? Math.Min(e.finalThrust / Math.Max(e.maxThrust, 1e-3f), 1f) : 0;
                 n.Output += ((float)output - n.Output) * (1f - Mathf.Exp(-Time.deltaTime / OutputEaseS));
@@ -376,7 +428,7 @@ namespace AeronauticAfterburner
                     Vector3 shape = Vector3.one;
                     // The exhaust leaves along the thrust transform's forward; the plume's +x.
                     Quaternion aft = Quaternion.LookRotation(t.forward, t.up) * Quaternion.Euler(0, -90, 0);
-                    if (draw.Draw(cam, n.Part.gameObject.layer, exit, aft, measured, s, n.Seed + i * 3.1f, n.Surge, shape)) depth = true;
+                    if (draw.Draw(cam, n.Part.gameObject.layer, exit, aft, measured, s, n.Seed + i * 3.1f, n.Surge, shape, Daylight(v))) depth = true;
                 }
             }
             // The march stops at the craft's own surfaces.

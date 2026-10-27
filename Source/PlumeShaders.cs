@@ -4,8 +4,7 @@ using UnityEngine;
 
 namespace AeronauticAfterburner
 {
-    // The plume shader, built into one AssetBundle per platform by unity/ and shipped in the mod's
-    // Shaders folder. Loaded once; null if it failed or the graphics API cannot run it.
+    // Platform shader bundles load once from Shaders; null means unavailable or unsupported.
     public static class PlumeShaders
     {
         public const string PlumeName = "AeronauticAfterburner/Plume";

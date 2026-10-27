@@ -8,12 +8,25 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <Deterministic>true</Deterministic>
-    <KSPDir Condition="'$(KSPDir)' == ''">C:\Users\Sawyer\Desktop\KSP_win64</KSPDir>
+    <Configurations>Release</Configurations>
+    <DebugType>none</DebugType>
+    <EnableSourceLink>false</EnableSourceLink>
+    <KSPDir Condition="'$(KSPDir)' == ''">$(KSPDIR)</KSPDir>
     <Managed>$(KSPDir)\KSP_x64_Data\Managed</Managed>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
+  <Target Name="ValidateKSPDir" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(Managed)\Assembly-CSharp.dll')" Text="Set KSPDir to your Kerbal Space Program installation." />
+  </Target>
   <ItemGroup>
-    <Compile Include="Source\*.cs" />
+    <Compile Include="Source\AfterburnerPlumes.cs" />
+    <Compile Include="Source\AfterburnerSettings.cs" />
+    <Compile Include="Source\AssemblyInfo.cs" />
+    <Compile Include="Source\Atmosphere.cs" />
+    <Compile Include="Source\NozzleLip.cs" />
+    <Compile Include="Source\PlumeDraw.cs" />
+    <Compile Include="Source\PlumeModel.cs" />
+    <Compile Include="Source\PlumeShaders.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp"><HintPath>$(Managed)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
